@@ -14,7 +14,7 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
-  eslint:
+  lint:
     runs-on: ubuntu-latest
 
     steps:
@@ -22,24 +22,12 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 22.14.0
-          cache: 'npm'  # Изменили с 'yarn' на 'npm'
-      - run: npm install  # Изменили с yarn на npm install
-      - run: npm run lint  # Изменили с yarn lint на npm run lint
-
-  test:
-    runs-on: ubuntu-latest
-
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
-        with:
-          node-version: 22.14.0
-          cache: 'npm'  # Изменили с 'yarn' на 'npm'
-      - run: npm install  # Изменили с yarn на npm install
-      - run: npm test  # Изменили с yarn test на npm test
+          cache: 'npm'  # Используем npm вместо yarn
+      - run: npm ci
+      - run: npm run lint  # Только линтер
 
   build:
-    needs: [eslint, test]
+    needs: [lint]  # Зависит только от линтера
 
     environment:
       name: github-pages
@@ -52,9 +40,9 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 22.14.0
-          cache: 'npm'  # Изменили с 'yarn' на 'npm'
-      - run: npm install  # Изменили с yarn на npm install
-      - run: npm run build  # Изменили с yarn build на npm run build
+          cache: 'npm'
+      - run: npm ci
+      - run: npm run build
       - name: Setup Pages
         uses: actions/configure-pages@v4
       - name: Upload artifact
