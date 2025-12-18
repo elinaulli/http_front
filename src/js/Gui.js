@@ -56,7 +56,7 @@ export default class Gui {
         '<svg class="done" height="48" viewBox="0 0 48 48" width="48" xmlns="http://www.w3.org/2000/svg"><path d="M0 0h48v48H0z" fill="none"/><path d="M36 14l-2.83-2.83-12.68 12.69 2.83 2.83L36 14zm8.49-2.83L23.31 32.34 14.97 24l-2.83 2.83L23.31 38l24-24-2.82-2.83zM.83 26.83L12 38l2.83-2.83L3.66 24 .83 26.83z"/></svg>';
     }
 
-    statusCell.appendChild(statusRound);
+    statusCell.append(statusRound);
 
     const nameCell = this.createElement("td", "text name-clickable");
     nameCell.textContent = name;
@@ -71,13 +71,13 @@ export default class Gui {
     const editBtn = this.createElement("p", "round edit-btn");
     editBtn.innerHTML =
       '<svg class="img edit" data-id="edit" height="48" viewBox="0 0 48 48" width="48" xmlns="http://www.w3.org/2000/svg"><path d="M6 34.5v7.5h7.5l22.13-22.13-7.5-7.5-22.13 22.13zm35.41-20.41c.78-.78.78-2.05 0-2.83l-4.67-4.67c-.78-.78-2.05-.78-2.83 0l-3.66 3.66 7.5 7.5 3.66-3.66z"/><path d="M0 0h48v48h-48z" fill="none"/></svg>';
-    editCell.appendChild(editBtn);
+    editCell.append(editBtn);
 
     const deleteCell = this.createElement("td", "delete");
     const deleteBtn = this.createElement("p", "round delete-btn");
     deleteBtn.innerHTML =
       '<svg class="img close" data-id="remove" height="48" viewBox="0 0 48 48" width="48" xmlns="http://www.w3.org/2000/svg"><path d="M38 12.83l-2.83-2.83-11.17 11.17-11.17-11.17-2.83 2.83 11.17 11.17-11.17 11.17 2.83 2.83 11.17-11.17 11.17 11.17 2.83-2.83-11.17-11.17z"/><path d="M0 0h48v48h-48z" fill="none"/></svg>';
-    deleteCell.appendChild(deleteBtn);
+    deleteCell.append(deleteBtn);
 
     mainRow.append(statusCell, nameCell, dateCell, editCell, deleteCell);
 
@@ -100,8 +100,8 @@ export default class Gui {
     descContent.dataset.id = `desc-content-${id}`;
 
     detailsContainer.append(descHeader, descContent);
-    detailsCell.appendChild(detailsContainer);
-    detailsRow.appendChild(detailsCell);
+    detailsCell.append(detailsContainer);
+    detailsRow.append(detailsCell);
 
     taskRow.append(mainRow, detailsRow);
 
@@ -183,7 +183,7 @@ export default class Gui {
 
     const buttonBlock = this.createElement("p", "btn_block");
     const closeBtn = this.createElement("a", "btn cancel", "Закрыть");
-    buttonBlock.appendChild(closeBtn);
+    buttonBlock.append(closeBtn);
 
     contentDiv.append(
       headerEl,
@@ -201,12 +201,12 @@ export default class Gui {
     const contentDiv = this.createElement("div", "content");
 
     const headerEl = this.createElement("h3", "popover_header");
-    headerEl.appendChild(document.createTextNode("Вы хотите удалить тикет "));
+    headerEl.append(document.createTextNode("Вы хотите удалить тикет "));
 
     const nameSpan = this.createElement("span", "show-name", name);
-    headerEl.appendChild(nameSpan);
+    headerEl.append(nameSpan);
 
-    headerEl.appendChild(document.createTextNode("?"));
+    headerEl.append(document.createTextNode("?"));
 
     const form = this.createElement("form", "form");
     form.dataset.idform = idform;
@@ -217,7 +217,7 @@ export default class Gui {
     const confirmBtn = this.createElement("a", "btn okeyBtn", "Да");
 
     buttonBlock.append(cancelBtn, confirmBtn);
-    form.appendChild(buttonBlock);
+    form.append(buttonBlock);
     contentDiv.append(headerEl, form);
 
     return contentDiv;
@@ -233,7 +233,7 @@ export default class Gui {
         ticket.name,
         ticket.created,
       );
-      this.tasksList.appendChild(taskElement);
+      this.tasksList.append(taskElement);
     });
   }
 }
