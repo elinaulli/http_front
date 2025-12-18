@@ -449,8 +449,6 @@ export default class Logic {
 			}
 
 			const ticket = await response.json();
-
-			// Находим строку с деталями
 			const detailsRow = task.querySelector(
 				`.task-details-row[data-id="details-${taskId}"]`,
 			);
@@ -463,13 +461,10 @@ export default class Logic {
 				return;
 			}
 
-			// Заполняем контент
 			detailsContent.textContent = ticket.description || "Описание отсутствует";
 
-			// Проверяем, открыта ли уже подробная информация
 			const isCurrentlyHidden = detailsRow.classList.contains("hidden");
 
-			// Закрываем все открытые детали
 			const allDetails = document.querySelectorAll(
 				".task-details-row:not(.hidden)",
 			);
@@ -478,14 +473,10 @@ export default class Logic {
 					detail.classList.add("hidden");
 				}
 			});
-
-			// Переключаем видимость текущей детали
 			if (isCurrentlyHidden) {
 				detailsRow.classList.remove("hidden");
-				console.log("Детали открыты");
 			} else {
 				detailsRow.classList.add("hidden");
-				console.log("Детали закрыты");
 			}
 		} catch (error) {
 			console.error("Ошибка при загрузке тикета:", error);
