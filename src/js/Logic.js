@@ -26,23 +26,20 @@ export default class Logic {
 		e.preventDefault();
 		const target = e.target;
 
-		// Обработка кнопки "Добавить тикет"
 		if (target.classList.contains("addTicket") || target.closest(".addTicket")) {
 			this.addTicket(e);
 			return;
 		}
 
-		// Находим ближайшую задачу
 		const task = target.closest(".task");
 		if (!task) return;
 
-		// Определяем что именно было нажато
 		const editBtn = target.closest(".edit-btn");
 		const deleteBtn = target.closest(".delete-btn");
 		const statusRound = target.closest(
 			".round:not(.edit-btn):not(.delete-btn)",
 		);
-		const nameCell = target.closest(".name-clickable"); // Изменили селектор
+		const nameCell = target.closest(".name-clickable"); 
 
 		if (editBtn) {
 			this.editTicket(e);
@@ -90,51 +87,42 @@ export default class Logic {
 		const taskId = task.dataset.id;
 		if (!taskId) return;
 
+		const ticket = this.tickets.find(t => t.id == taskId);
+		if (!ticket) return;
+
+		const newStatus = !ticket.status;
+
 		try {
-			const ticket = this.tickets.find(t => t.id == taskId);
-			if (!ticket) {
-				console.error(`Тикет с ID ${taskId} не найден`);
-				return;
-			}
-
-			const newStatus = !ticket.status;
-
-			const getUrl = `${this.url}?method=ticketById&id=${taskId}`;
-			const getResponse = await fetch(getUrl);
-
+			const getResponse = await fetch(`${this.url}?method=ticketById&id=${taskId}`);
 			const fullTicket = await getResponse.json();
 
-			const updateUrl = `${this.url}?method=editTicket`;
+
 			const formData = new FormData();
-
 			formData.append('id', taskId);
-			formData.append('title', fullTicket.name || ticket.name);
+			formData.append('title', fullTicket.name);
 			formData.append('description', fullTicket.description || '');
-			formData.append('status', newStatus);
+			formData.append('status', newStatus ? "true" : "false");
 
-			const updateResponse = await fetch(updateUrl, {
+			const updateResponse = await fetch(`${this.url}?method=editTicket`, {
 				method: 'POST',
 				body: formData
 			});
 
-			if (!updateResponse.ok) {
-				const errorText = await updateResponse.text();
-				throw new Error(`HTTP ошибка ${updateResponse.status}: ${errorText}`);
-			}
+			if (updateResponse.ok) {
+				const result = await updateResponse.json();
 
-			ticket.status = newStatus;
+				ticket.status = result.status;
 
-			const statusRound = task.querySelector('.round');
-			if (statusRound) {
-				if (newStatus) {
-					statusRound.innerHTML = '<svg class="done" height="48" viewBox="0 0 48 48" width="48" xmlns="http://www.w3.org/2000/svg"><path d="M0 0h48v48H0z" fill="none"/><path d="M36 14l-2.83-2.83-12.68 12.69 2.83 2.83L36 14zm8.49-2.83L23.31 32.34 14.97 24l-2.83 2.83L23.31 38l24-24-2.82-2.83zM.83 26.83L12 38l2.83-2.83L3.66 24 .83 26.83z"/></svg>';
-				} else {
-					statusRound.innerHTML = '';
+				const statusRound = task.querySelector('.round');
+				if (statusRound) {
+					statusRound.innerHTML = ticket.status ?
+						'<svg class="done" height="48" viewBox="0 0 48 48" width="48" xmlns="http://www.w3.org/2000/svg"><path d="M0 0h48v48H0z" fill="none"/><path d="M36 14l-2.83-2.83-12.68 12.69 2.83 2.83L36 14zm8.49-2.83L23.31 32.34 14.97 24l-2.83 2.83L23.31 38l24-24-2.82-2.83zM.83 26.83L12 38l2.83-2.83L3.66 24 .83 26.83z"/></svg>' :
+						'';
 				}
 			}
 
 		} catch (error) {
-			console.error('Ошибка при изменении статуса:', error);
+			console.error('Ошибка:', error);
 		}
 	}
 	async sendRequest(method, query, type) {
@@ -220,11 +208,7 @@ export default class Logic {
 
 	async editTicketSubmit(form, name, description) {
 		const id = form.dataset.id;
-		if (!id) {
-			throw new Error("ID не найден");
-		}
-
-		// Получаем текущий статус
+		
 		const ticket = this.tickets.find(t => t.id == id);
 		const currentStatus = ticket ? ticket.status : false;
 
@@ -249,7 +233,7 @@ export default class Logic {
 		const request = new FormData();
 		request.append("title", name);
 		request.append("description", description || "");
-		request.append("status", false);
+		request.append("status", "false");
 
 		const response = await fetch(`${this.url}?method=createTicket`, {
 			method: "POST",
@@ -260,22 +244,18 @@ export default class Logic {
 			const errorText = await response.text();
 			throw new Error(`HTTP ошибка ${response.status}: ${errorText}`);
 		}
+		const result = await response.json();
+		console.log('Результат создания:', result);
+
+		return result;
+
 	}
 
 	async remove(e) {
 		e.preventDefault();
 
 		const form = e.target.closest(".form");
-		if (!form) {
-			console.error("Форма не найдена");
-			return;
-		}
-
 		const id = form.dataset.id;
-		if (!id) {
-			console.error("ID не найден");
-			return;
-		}
 
 		try {
 			const url = `${this.url}?method=deleteTicket`;
@@ -307,18 +287,6 @@ export default class Logic {
 	async editTicket(e) {
 		e.preventDefault();
 		this.gui.popUp.innerHTML = "";
-
-		const task = e.target.closest(".task");
-		if (!task) {
-			console.error("Элемент задачи не найден");
-			return;
-		}
-
-		const taskId = task.dataset.id;
-		if (!taskId) {
-			console.error("ID задачи не найден");
-			return;
-		}
 
 		try {
 			const url = `${this.url}?method=ticketById&id=${taskId}`;
@@ -430,16 +398,7 @@ export default class Logic {
 	async showDescription(e) {
 		e.preventDefault();
 		const task = e.target.closest(".task");
-		if (!task) {
-			return;
-		}
-
-		const taskId = task.dataset.id;
-		if (!taskId) {
-			console.error("ID задачи не найден");
-			return;
-		}
-
+		
 		try {
 			const url = `${this.url}?method=ticketById&id=${taskId}`;
 			const response = await fetch(url);
@@ -456,11 +415,7 @@ export default class Logic {
 				`.details-content[data-id="desc-content-${taskId}"]`,
 			);
 
-			if (!detailsRow || !detailsContent) {
-				console.error("Элементы деталей не найдены");
-				return;
-			}
-
+		
 			detailsContent.textContent = ticket.description || "Описание отсутствует";
 
 			const isCurrentlyHidden = detailsRow.classList.contains("hidden");
